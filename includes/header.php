@@ -31,3 +31,4 @@ $titulo = $titulo ?? 'TecnoStock';
   </div>
 </nav>
 <main class="container py-4">
+  <?php if (!empty($_SESSION['flash'])): ?> ... <?php endif; ?>

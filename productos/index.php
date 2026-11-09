@@ -31,7 +31,10 @@ $bajoStock = (int) $pdo->query(
 )->fetchColumn();
 ?>
 
-<h1 class="h4 mb-3">Productos</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">Productos</h1>
+  <a href="crear.php" class="btn btn-success">+ Nuevo producto</a>
+</div>
 
 <?php if ($bajoStock > 0): ?>
   <div class="alert alert-warning" role="alert">
