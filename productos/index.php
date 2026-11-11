@@ -99,10 +99,15 @@ $bajoStock = (int) $pdo->query(
             <span class="badge text-bg-success">Normal</span>
           <?php endif; ?>
         </td>
-        <td class="text-end">
+           <td class="text-end">
           <?php if ($activo): ?>
             <a href="editar.php?id=<?= (int) $p['id_producto'] ?>"
                class="btn btn-sm btn-outline-primary">Editar</a>
+            <form method="post" action="desactivar.php" class="d-inline"
+                  onsubmit="return confirm('¿Desactivar este producto? Dejará de comercializarse.');">
+              <input type="hidden" name="id" value="<?= (int) $p['id_producto'] ?>">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Desactivar</button>
+            </form>
           <?php endif; ?>
         </td>
       </tr>
