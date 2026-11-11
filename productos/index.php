@@ -67,12 +67,13 @@ $bajoStock = (int) $pdo->query(
         <th class="text-end">Stock</th>
         <th class="text-end">Mínimo</th>
         <th>Estado</th>
+        <th class="text-end">Acciones</th>
       </tr>
     </thead>
     <tbody>
     <?php if (count($productos) === 0): ?>
       <tr>
-        <td colspan="7" class="text-center text-muted py-4">
+        <td colspan="8" class="text-center text-muted py-4">
           No se encontraron productos.
         </td>
       </tr>
@@ -96,6 +97,12 @@ $bajoStock = (int) $pdo->query(
             <span class="badge text-bg-danger">Stock bajo</span>
           <?php else: ?>
             <span class="badge text-bg-success">Normal</span>
+          <?php endif; ?>
+        </td>
+        <td class="text-end">
+          <?php if ($activo): ?>
+            <a href="editar.php?id=<?= (int) $p['id_producto'] ?>"
+               class="btn btn-sm btn-outline-primary">Editar</a>
           <?php endif; ?>
         </td>
       </tr>
