@@ -20,7 +20,7 @@ $titulo = $titulo ?? 'TecnoStock';
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="menu">
-           <ul class="navbar-nav me-auto">
+      <ul class="navbar-nav me-auto">
         <li class="nav-item">
           <a class="nav-link<?= str_contains($_SERVER['SCRIPT_NAME'], '/productos/') ? ' active' : '' ?>"
              href="<?= BASE_URL ?>/productos/index.php">Productos</a>
@@ -36,4 +36,10 @@ $titulo = $titulo ?? 'TecnoStock';
   </div>
 </nav>
 <main class="container py-4">
-  <?php if (!empty($_SESSION['flash'])): ?> ... <?php endif; ?>
+<?php if (!empty($_SESSION['flash'])): ?>
+  <div class="alert alert-<?= htmlspecialchars($_SESSION['flash']['tipo']) ?> alert-dismissible fade show" role="alert">
+    <?= htmlspecialchars($_SESSION['flash']['mensaje']) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <?php unset($_SESSION['flash']); ?>
+<?php endif; ?>
