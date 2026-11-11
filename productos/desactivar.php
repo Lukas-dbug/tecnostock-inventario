@@ -10,7 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: index.php');
     exit;
 }
-
+    if (!csrf_validar()) {
+        http_response_code(403);
+        exit('Solicitud no válida: falta el token de seguridad. Recarga la página e inténtalo de nuevo.');
+    }
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
 if ($id) {

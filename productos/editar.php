@@ -50,6 +50,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errores) {
         try {
+            $pdo->beginTransaction();
+
+            // Se lee el stock vigente bloqueando la fila, por si cambió mientras se editaba
+            $stmt = $pdo->prepare(
+                'SELECT stock_actual FROM productos
+                  WHERE id_producto = :id AND estado = 1 FOR UPDATE'
+            );
+            $stmt->execute([':id' => $id]);
+            $stockAnterior = $stmt->fetchColumn();
+
+            if ($stockAnterior === false) {
+                $pdo->rollBack();
+                $_SESSION['flash'] = ['tipo' => 'danger', 'mensaje' => 'El producto ya no está disponible.'];
+                header('Location: index.php');
+                exit;
+            }
+
             $stmt = $pdo->prepare(
                 'UPDATE productos
                     SET nombre = :nombre, descripcion = :descripcion, precio = :precio,
@@ -66,10 +83,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id_categoria' => (int) $datos['id_categoria'],
                 ':id'           => $id,
             ]);
+
+            // Si cambió el stock, se deja constancia como movimiento de ajuste (RN-03)
+            $diferencia = (int) $datos['stock_actual'] - (int) $stockAnterior;
+            if ($diferencia !== 0) {
+                $stmt = $pdo->prepare(
+                    'INSERT INTO movimientos (tipo, cantidad, observacion, id_producto, id_usuario)
+                     VALUES (:tipo, :cantidad, :observacion, :id_producto, :id_usuario)'
+                );
+                $stmt->execute([
+                    ':tipo'        => $diferencia > 0 ? 'ENTRADA' : 'SALIDA',
+                    ':cantidad'    => abs($diferencia),
+                    ':observacion' => 'Ajuste manual de stock',
+                    ':id_producto' => $id,
+                    ':id_usuario'  => (int) $_SESSION['id_usuario'],
+                ]);
+            }
+
+            $pdo->commit();
             $_SESSION['flash'] = ['tipo' => 'success', 'mensaje' => 'Producto actualizado correctamente.'];
             header('Location: index.php');
             exit;
         } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('Error al actualizar producto: ' . $e->getMessage());
             $errores['general'] = 'No se pudo guardar los cambios. Intenta nuevamente.';
         }

@@ -8,6 +8,7 @@ function clase_campo(array $errores, string $campo): string
 ?>
 <form id="formProducto" method="post" novalidate>
   <div class="row g-3">
+      <?= csrf_campo() ?>
 
     <div class="col-md-4">
       <label for="codigo" class="form-label">Código *</label>
@@ -75,7 +76,9 @@ function clase_campo(array $errores, string $campo): string
                 id="descripcion" name="descripcion" rows="3" maxlength="500"><?= htmlspecialchars($datos['descripcion']) ?></textarea>
       <div class="invalid-feedback"><?= htmlspecialchars($errores['descripcion'] ?? '') ?></div>
     </div>
-
+      <?php if ($esEdicion): ?>
+        <div class="form-text">Si cambias este valor, se registrará un movimiento de ajuste.</div>
+      <?php endif; ?>
   </div>
 
   <div class="mt-4 d-flex gap-2">

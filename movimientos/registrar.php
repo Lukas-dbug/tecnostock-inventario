@@ -15,6 +15,10 @@ $errores = [];
 $datos   = ['id_producto' => '', 'tipo' => '', 'cantidad' => '', 'observacion' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!csrf_validar()) {
+        http_response_code(403);
+        exit('Solicitud no válida: falta el token de seguridad. Recarga la página e inténtalo de nuevo.');
+    }
     foreach ($datos as $campo => $valor) {
         $datos[$campo] = trim($_POST[$campo] ?? '');
     }
@@ -67,6 +71,7 @@ require __DIR__ . '/../includes/header.php';
 <?php endif; ?>
 
 <form id="formMovimiento" method="post" novalidate>
+      <?= csrf_campo() ?>
   <div class="row g-3">
 
     <div class="col-md-8">

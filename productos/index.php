@@ -106,6 +106,7 @@ $bajoStock = (int) $pdo->query(
             <form method="post" action="desactivar.php" class="d-inline"
                   onsubmit="return confirm('¿Desactivar este producto? Dejará de comercializarse.');">
               <input type="hidden" name="id" value="<?= (int) $p['id_producto'] ?>">
+              <?= csrf_campo() ?>
               <button type="submit" class="btn btn-sm btn-outline-danger">Desactivar</button>
             </form>
           <?php endif; ?>
