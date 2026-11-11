@@ -1,23 +1,33 @@
 <?php
-// productos/index.php - Listado de productos con búsqueda
+// productos/index.php - Listado de productos con búsqueda y filtro de stock bajo
 require __DIR__ . '/../config/conexion.php';
 $titulo = 'Productos';
 require __DIR__ . '/../includes/header.php';
 
 $busqueda = trim($_GET['q'] ?? '');
+$soloBajo = ($_GET['bajo'] ?? '') === '1';
 
 $sql = 'SELECT p.id_producto, p.codigo, p.nombre, p.precio,
                p.stock_actual, p.stock_minimo, p.estado,
                c.nombre AS categoria
           FROM productos p
          INNER JOIN categorias c ON c.id_categoria = p.id_categoria';
+$condiciones = [];
 $params = [];
 
 if ($busqueda !== '') {
     // Consulta preparada: un parámetro distinto por cada LIKE
-    $sql .= ' WHERE p.nombre LIKE :q1 OR p.codigo LIKE :q2 OR c.nombre LIKE :q3';
+    $condiciones[] = '(p.nombre LIKE :q1 OR p.codigo LIKE :q2 OR c.nombre LIKE :q3)';
     $like = '%' . $busqueda . '%';
-    $params = [':q1' => $like, ':q2' => $like, ':q3' => $like];
+    $params[':q1'] = $like;
+    $params[':q2'] = $like;
+    $params[':q3'] = $like;
+}
+if ($soloBajo) {
+    $condiciones[] = 'p.estado = 1 AND p.stock_actual < p.stock_minimo';
+}
+if ($condiciones) {
+    $sql .= ' WHERE ' . implode(' AND ', $condiciones);
 }
 $sql .= ' ORDER BY p.estado DESC, p.nombre ASC';
 
@@ -39,10 +49,18 @@ $bajoStock = (int) $pdo->query(
 <?php if ($bajoStock > 0): ?>
   <div class="alert alert-warning" role="alert">
     <strong>Atención:</strong> hay <?= $bajoStock ?> producto(s) con stock bajo.
+    <?php if ($soloBajo): ?>
+      <a href="index.php" class="alert-link">Ver todos</a>
+    <?php else: ?>
+      <a href="index.php?bajo=1" class="alert-link">Ver solo stock bajo</a>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
 
 <form class="row g-2 mb-3" method="get" action="index.php">
+  <?php if ($soloBajo): ?>
+    <input type="hidden" name="bajo" value="1">
+  <?php endif; ?>
   <div class="col-12 col-md-8">
     <input type="search" class="form-control" name="q"
            placeholder="Buscar por nombre, código o categoría"
@@ -50,7 +68,7 @@ $bajoStock = (int) $pdo->query(
   </div>
   <div class="col-12 col-md-4 d-flex gap-2">
     <button class="btn btn-primary" type="submit">Buscar</button>
-    <?php if ($busqueda !== ''): ?>
+    <?php if ($busqueda !== '' || $soloBajo): ?>
       <a class="btn btn-outline-secondary" href="index.php">Limpiar</a>
     <?php endif; ?>
   </div>
@@ -99,8 +117,10 @@ $bajoStock = (int) $pdo->query(
             <span class="badge text-bg-success">Normal</span>
           <?php endif; ?>
         </td>
-           <td class="text-end">
+        <td class="text-end">
           <?php if ($activo): ?>
+            <a href="../movimientos/registrar.php?id=<?= (int) $p['id_producto'] ?>"
+               class="btn btn-sm btn-outline-secondary">Movimiento</a>
             <a href="editar.php?id=<?= (int) $p['id_producto'] ?>"
                class="btn btn-sm btn-outline-primary">Editar</a>
             <form method="post" action="desactivar.php" class="d-inline"

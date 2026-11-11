@@ -22,10 +22,12 @@ $titulo = $titulo ?? 'TecnoStock';
     <div class="collapse navbar-collapse" id="menu">
            <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/productos/index.php">Productos</a>
+          <a class="nav-link<?= str_contains($_SERVER['SCRIPT_NAME'], '/productos/') ? ' active' : '' ?>"
+             href="<?= BASE_URL ?>/productos/index.php">Productos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/movimientos/index.php">Movimientos</a>
+          <a class="nav-link<?= str_contains($_SERVER['SCRIPT_NAME'], '/movimientos/') ? ' active' : '' ?>"
+             href="<?= BASE_URL ?>/movimientos/index.php">Movimientos</a>
         </li>
       </ul>
       <span class="navbar-text me-3"><?= htmlspecialchars($_SESSION['nombre']) ?></span>
