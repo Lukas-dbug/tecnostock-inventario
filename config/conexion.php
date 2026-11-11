@@ -1,7 +1,14 @@
 <?php
 // config/conexion.php
 // Conexión a MySQL con PDO. Configuración por defecto de XAMPP.
-
+// Errores inesperados: se registran en el log y el usuario ve un mensaje general
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+set_exception_handler(function (Throwable $e) {
+    error_log('Error no controlado: ' . $e->getMessage());
+    http_response_code(500);
+    echo 'Ocurrió un error inesperado. Intenta nuevamente más tarde.';
+});
 $host    = '127.0.0.1';
 $db      = 'tecnostock';
 $user    = 'root';
